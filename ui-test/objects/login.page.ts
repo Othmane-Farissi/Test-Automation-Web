@@ -1,5 +1,3 @@
-
-
 class LoginPage {
     get loginSignupBtn(){
         return $('a[href="/login"]');
