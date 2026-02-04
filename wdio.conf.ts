@@ -8,16 +8,16 @@ export const config: WebdriverIO.Config = {
 
   framework: 'cucumber',
 
-  services: ['devtools'],
-
-  capabilities: [
-    {
-      browserName: 'chrome',
-      'goog:chromeOptions': {
-        debuggerAddress: 'localhost:41939',
-      }
+  capabilities: [{
+    browserName: 'chrome',
+    'goog:chromeOptions': {
+      args: [
+        '--no-sandbox',
+        '--disable-dev-shm-usage',
+        '--window-size=1440,900'
+      ]
     }
-  ],
+  }],
 
   reporters: ['spec'],
 
