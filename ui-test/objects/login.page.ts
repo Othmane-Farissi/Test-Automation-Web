@@ -12,7 +12,7 @@ class LoginPage {
     }
 
     get loginBtn(){
-        return $('input[data-qa="login-button"]');
+        return $('[data-qa="login-button"]');
     }
 
     get logoutBtn(){
