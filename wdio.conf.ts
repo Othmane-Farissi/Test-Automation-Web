@@ -5,7 +5,11 @@ dotenvConfig({ path: 'ui-test/.env' })
 export const config: WebdriverIO.Config = {
   runner: 'local',
   
-  specs: ['/home/ofarissi/Desktop/Test-Automation-Web/ui-test/features/*.feature'],
+  specs: [
+    './ui-test/features/signup.feature',
+    './ui-test/features/login.feature'
+  ],
+  maxInstances: 1,
   
   framework: 'cucumber',
 

@@ -3,60 +3,62 @@ import { browser, expect } from '@wdio/globals'
 import LoginActions from '../actions/login.actions'
 import LoginPage from '../objects/login.page'
 
-Given('user is on the homepage', async function() {
-  const baseUrl = process.env.BASE_URL
-  if (!baseUrl) {
-    throw new Error('BASE_URL is not set. Define it in your environment or .env file.')
-  }
+Given('user is on the homepage', async function () {
   await browser.url('/')
+  await browser.refresh()
+
+  if (await LoginPage.logoutBtn.isExisting()) {
+    await LoginPage.logoutBtn.click()
+    await browser.url('/')
+  }
 })
 
-When(/^user clicks on the login\/signup icon$/, async function() {
+When(/^user clicks on the login\/signup icon$/, async function () {
   await LoginActions.openLoginPage()
 })
 
-When('user enters valid credentials', async function() {
-  const email = process.env.TEST_EMAIL
-  const password = process.env.TEST_PWD
-  if (!email || !password) {
-    throw new Error('TEST_EMAIL or TEST_PWD is not set. Define them in your environment or .env file.')
-  }
-  await LoginActions.login(email, password)
-})
-
-When('user is redirected to the login page', async function() {
+When(/^user is redirected to the login\/signup page$/, async function () {
   await expect(LoginPage.emailInput).toBeDisplayed()
 })
 
-When('user enters a valid email address', async function() {
-  const email = process.env.TEST_EMAIL
-  if (!email) {
-    throw new Error('TEST_EMAIL is not set. Define it in your environment or .env file.')
+
+When(/^user enters (.+) and (.+)$/, async function (email: string, password: string) {
+  const normalizedEmail = email === 'empty' ? '' : email
+  const normalizedPassword = password === 'empty' ? '' : password
+
+  if (normalizedEmail) {
+    await LoginPage.emailInput.setValue(normalizedEmail)
   }
-  await LoginPage.emailInput.setValue(email)
+
+  if (normalizedPassword) {
+    await LoginPage.passwordInput.setValue(normalizedPassword)
+  }
 })
 
-When('user enters a valid password', async function() {
-  const password = process.env.TEST_PWD
-  if (!password) {
-    throw new Error('TEST_PWD is not set. Define it in your environment or .env file.')
-  }
-  await LoginPage.passwordInput.setValue(password)
-})
-
-When('user clicks on the login button', async function() {
+When('user clicks on the login button', async function () {
   await LoginPage.loginBtn.waitForDisplayed()
   await LoginPage.loginBtn.click()
 })
 
-Then('user should be logged in successfully', async function() {
-  await expect(LoginPage.logoutBtn).toBeDisplayed()
-})
 
-Then('user should be redirected to the homepage', async function() {
-  const baseUrl = process.env.BASE_URL
-  if (!baseUrl) {
-    throw new Error('BASE_URL is not set. Define it in your environment or .env file.')
+Then(
+  /^user should see "([^"]*)"$/,
+  async function (result: string) {
+    switch (result) {
+      case 'homepage':
+        await expect(LoginPage.logoutBtn).toBeDisplayed()
+        break
+
+      case 'error message':
+        await expect(LoginPage.loginErrorMessage).toBeDisplayed()
+        break
+
+      case 'validation message':
+        await expect(await LoginPage.getValidationMessage()).not.toBe('')
+        break
+
+      default:
+        throw new Error(`Unknown result type: ${result}`)
+    }
   }
-  await expect(browser).toHaveUrl(new RegExp(baseUrl))
-})
+)
